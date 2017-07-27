@@ -12,12 +12,12 @@
     [/^---\s$/gm, "<hr/>"],
     [/(\n\*.*)+/gm, m => {
       s = "";
-      m.substring(1).split("\n").forEach(z => s += "<li>" + z.substring(2) + "</li>");
+      m.substr(1).split("\n").forEach(z => s += "<li>" + z.substr(2) + "</li>");
       return "<ul>" + s + "</ul>"
     }],
     [/(\n\d\..*)+/gm, m => {
       s="";
-      m.substring(1).split("\n").forEach(z => s += "<li>" + z.substring(2) + "</li>");
+      m.substr(1).split("\n").forEach(z => s += "<li>" + z.substr(2) + "</li>");
       return "<ol>" + s + "</ol>"
     }],
     [/\n\n/gm, "</p><p>"]
