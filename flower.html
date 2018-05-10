@@ -1,0 +1,68 @@
+<!-- This file has nothing to do with JSMD. -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			* {margin: 0; padding: 0;}
+			body, html {height: 100; overflow: hidden;}	
+		</style>
+	</head>
+	<body>
+		<canvas>Your browser does not support the canvas element.</canvas>
+		<script>
+			// This code is dual-licensed under the Unlicense or the MIT license.
+
+			var canv = document.getElementsByTagName("canvas")[0];
+			var ctx = canv.getContext('2d');
+			
+			var multiplier = 0;
+			
+			canv.width = window.innerWidth;
+			canv.height = window.innerHeight;
+
+			var dots = 50;
+			var distance = 6;
+			var speed = 0.00005;
+			document.onkeydown = function(e) {
+				console.log(e.key);
+				if(e.key == "=")
+					dots++;
+				else if(e.key == "-")
+					dots--;
+				else if(e.key == "ArrowLeft")
+					distance -= 0.01;
+				else if(e.key == "ArrowRight")
+					distance += 0.01;
+				else if(e.key == "ArrowUp")
+					speed *= 1 / 0.9;
+				else if(e.key == "ArrowDown")
+					speed *= 0.9;
+			}
+			
+			requestAnimationFrame(animfunc = function() {
+				
+				ctx.fillStyle = "#000";
+				ctx.fillRect(0, 0, canv.scrollWidth, canv.scrollHeight);
+				
+				var angle = 0;
+				
+				for(var i = 0; i < dots; i++) {
+					var xo = i * distance, yo = 0;
+					var xn = xo * Math.cos(angle) - yo * Math.sin(angle);
+					var yn = xo * Math.sin(angle) + yo * Math.cos(angle);
+					
+					ctx.beginPath();
+					ctx.arc(canv.scrollWidth / 2 - 5 + xn, canv.scrollHeight / 2 - 5 + yn, 5, 0, Math.PI * 2, true);
+					ctx.fillStyle = "#FFF";
+					ctx.fill();
+
+					angle += multiplier * Math.PI * 2;
+				}
+				
+				multiplier += speed;
+
+				requestAnimationFrame(animfunc);
+			});
+		</script>
+	</body>
+</html>
