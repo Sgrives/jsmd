@@ -34,12 +34,12 @@
 		</style>
 	</head>
 	<body>
-		<canvas>Your browser does not support the canvas element.</canvas>
+		<canvas tabindex="1">Your browser does not support the canvas element.</canvas>
 		<div id="data">
-			<p>Dots: <span id="valDots"></span></p>
-			<p>Distance: <span id="valDist"></span></p>
-			<p>Turns: <span id="valAngl"></span></p>
-			<p>Speed: <span id="valSped"></span></p>
+			<p>Dots: <input type="text" id="valDots"></span></p>
+			<p>Distance: <input type="text" id="valDist"></span></p>
+			<p>Turns: <input type="text" id="valAngl"></span></p>
+			<p>Speed: <input type="text" id="valSped"></span></p>
 
 			<button id="btnAddDots">+Dots</button>
 			<button id="btnSubDots">-Dots</button><br />
@@ -56,6 +56,7 @@
 			<button id="btnAddSped">+Speed</button>
 			<button id="btnSubSped">-Speed</button>
 		</div>
+		<script src="https://unpkg.com/mathjs@5.1.2/dist/math.min.js"></script>
 		<script>
 			// Thanks neouser99 from StackOverflow!
 			function holdit(btn, action, start, speedup) {
@@ -86,81 +87,107 @@
 			var canv = document.getElementsByTagName("canvas")[0];
 			var ctx = canv.getContext('2d');
 			
-			var multiplier = 0;
-			
 			canv.width = window.innerWidth;
 			canv.height = window.innerHeight;
+			
+			var valDots = $("valDots");
+			var valDist = $("valDist");
+			var valAngl = $("valAngl");
+			var valSped = $("valSped");
 
-			var dots = 50;
-			var distance = 6;
-			var speed = 0.00005;
+			valDots.value = 50;
+			valDist.value = 6;
+			valAngl.value = 0;
+			valSped.value = 0.00005;
+			
+			var active = false; // Used to make inputs editable.
+			valDots.onkeydown = function(e) {
+				if(e.keyCode != 13) {
+					active = true;
+				} else {
+					valDots.value = math.eval(valDots.value);
+					active = false;
+				}
+			};
+			valDots.onblur = function() { active = false; };
+			valDist.onkeydown = function(e) {
+				if(e.keyCode != 13) {
+					active = true;
+				} else {
+					valDist.value = math.eval(valDist.value);
+					active = false;
+				}
+			};
+			valDist.onblur = function() { active = false; };
+			valAngl.onkeydown = function(e) {
+				if(e.keyCode != 13) {
+					active = true;
+					$("chkManualAngle").checked = true;
+					$("chkManualAngle").onchange();
+				} else {
+					valAngl.value = math.eval(valAngl.value);
+					active = false;
+				}
+			};
+			valAngl.onblur = function() { active = false; };
+			valSped.onkeydown = function(e) {
+				if(e.keyCode != 13) {
+					active = true;
+				} else {
+					valSped.value = math.eval(valSped.value);
+					active = false;
+				}
+			};
+			valSped.onblur = function() { active = false; };
 
-			function addDist() {distance += 0.01;}
-			function subDist() {distance -= 0.01;}
-			function addSped() {speed *= 1 / 0.9;}
-			function subSped() {speed *= 0.9;}
+			function addDist() {valDist.value = +valDist.value + 0.01;}
+			function subDist() {valDist.value = +valDist.value - 0.01;}
+			function addSped() {valSped.value = +valSped.value * (1 / 0.9);}
+			function subSped() {valSped.value = +valSped.value * 0.9;}
 
-			$("chkManualAngle").onclick = function() {
+			$("chkManualAngle").onchange = function() {
 				var chkVal = $("chkManualAngle").checked;
 
 				$("btnAddAngl").style.display = chkVal ? "inline" : "none";
 				$("btnSubAngl").style.display = chkVal ? "inline" : "none";
 			};
 			$("chkManualAngle").checked = false;
-			$("chkManualAngle").onclick();
+			$("chkManualAngle").onchange();
 
-			holdit($("btnAddDots"), function() {dots++;}, 50, 1);
-			holdit($("btnSubDots"), function() {dots--;}, 50, 1);
+			holdit($("btnAddDots"), function() {valDots.value++;}, 50, 1);
+			holdit($("btnSubDots"), function() {valDots.value--;}, 50, 1);
 			holdit($("btnAddDist"), addDist, 10, 1);
 			holdit($("btnSubDist"), subDist, 10, 1);
-			holdit($("btnAddAngl"), function() {multiplier += speed;}, 10, 1);
-			holdit($("btnSubAngl"), function() {multiplier -= speed;}, 10, 1);
+			holdit($("btnAddAngl"), function() {valAngl.value = +valAngl.value + +valSped.value;}, 10, 1);
+			holdit($("btnSubAngl"), function() {valAngl.value = +valAngl.value - +valSped.value;}, 10, 1);
 			holdit($("btnAddSped"), addSped, 50, 1);
 			holdit($("btnSubSped"), subSped, 50, 1);
-
-			document.onkeydown = function(e) {
-				console.log(e.key);
-				if(e.key == "=")
-					dots++;
-				else if(e.key == "-")
-					dots--;
-				else if(e.key == "ArrowLeft")
-					addDist();
-				else if(e.key == "ArrowRight")
-					subDist();
-				else if(e.key == "ArrowUp")
-					addSped();
-				else if(e.key == "ArrowDown")
-					subSped();
-			}
 			
 			requestAnimationFrame(animfunc = function() {
+				if(!active) {
 				
-				$("valDots").innerText = dots;
-				$("valDist").innerText = distance;
-				$("valAngl").innerText = multiplier;
-				$("valSped").innerText = speed;
+					ctx.fillStyle = "#000";
+					ctx.fillRect(0, 0, canv.scrollWidth, canv.scrollHeight);
 				
-				ctx.fillStyle = "#000";
-				ctx.fillRect(0, 0, canv.scrollWidth, canv.scrollHeight);
+					var angle = 0;
 				
-				var angle = 0;
-				
-				for(var i = 0; i < dots; i++) {
-					var xo = i * distance, yo = 0;
-					var xn = xo * Math.cos(angle) - yo * Math.sin(angle);
-					var yn = xo * Math.sin(angle) + yo * Math.cos(angle);
+					for(var i = 0, j = valDots.value; i < j; i++) {
+						var xo = i * valDist.value, yo = 0;
+						var xn = xo * Math.cos(angle) - yo * Math.sin(angle);
+						var yn = xo * Math.sin(angle) + yo * Math.cos(angle);
 					
-					ctx.beginPath();
-					ctx.arc(canv.scrollWidth / 2 - 5 + xn, canv.scrollHeight / 2 - 5 + yn, 5, 0, Math.PI * 2, true);
-					ctx.fillStyle = "#FFF";
-					ctx.fill();
+						ctx.beginPath();
+						ctx.arc(canv.scrollWidth / 2 - 5 + xn, canv.scrollHeight / 2 - 5 + yn, 5, 0, Math.PI * 2, true);
+						ctx.fillStyle = "#FFF";
+						ctx.fill();
 
-					angle += multiplier * Math.PI * 2;
-				}
+						angle += valAngl.value * Math.PI * 2;
+					}
 				
-				if(!($("chkManualAngle").checked)) {
-					multiplier += speed;
+					if(!($("chkManualAngle").checked)) {
+						valAngl.value = (+valAngl.value + +valSped.value) % 1;
+					}
+
 				}
 
 				requestAnimationFrame(animfunc);
