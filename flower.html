@@ -84,6 +84,13 @@
 
 			var $ = document.getElementById.bind(document);
 
+			function mathToNum(val) {
+				if(val.toNumber)
+					return val.toNumber();
+				else
+					return val.toString();
+			};
+
 			var canv = document.getElementsByTagName("canvas")[0];
 			var ctx = canv.getContext('2d');
 			
@@ -105,7 +112,7 @@
 				if(e.keyCode != 13) {
 					active = true;
 				} else {
-					valDots.value = math.eval(valDots.value);
+					valDots.value = mathToNum(math.eval(valDots.value));
 					active = false;
 				}
 			};
@@ -114,7 +121,7 @@
 				if(e.keyCode != 13) {
 					active = true;
 				} else {
-					valDist.value = math.eval(valDist.value);
+					valDist.value = mathToNum(math.eval(valDist.value));
 					active = false;
 				}
 			};
@@ -125,7 +132,7 @@
 					$("chkManualAngle").checked = true;
 					$("chkManualAngle").onchange();
 				} else {
-					valAngl.value = math.eval(valAngl.value);
+					valAngl.value = mathToNum(math.eval(valAngl.value));
 					active = false;
 				}
 			};
@@ -134,7 +141,7 @@
 				if(e.keyCode != 13) {
 					active = true;
 				} else {
-					valSped.value = math.eval(valSped.value);
+					valSped.value = mathToNum(math.eval(valSped.value));
 					active = false;
 				}
 			};
