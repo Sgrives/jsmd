@@ -8,13 +8,64 @@
 	<head>
 		<style>
 			* {margin: 0; padding: 0;}
-			body, html {height: 100; overflow: hidden;}	
+			body, html {min-height: 100%; overflow: hidden;}	
+
+			#data {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+			}
+			#data p {
+				font-family: Courier New;
+				font-weight: bold;
+				font-size: 12pt;
+				color: white;
+			}
+			#data button {
+				font-size: 8pt;
+			}
 		</style>
 	</head>
 	<body>
 		<canvas>Your browser does not support the canvas element.</canvas>
+		<div id="data">
+			<p>Dots: <span id="valDots"></span></p>
+			<p>Distance: <span id="valDist"></span></p>
+			<p>Speed: <span id="valSped"></span></p>
+
+			<button id="btnAddDots">+Dots</button>
+			<button id="btnSubDots">-Dots</button><br />
+			<button id="btnAddDist">+Distance</button>
+			<button id="btnSubDist">-Distance</button><br />
+			<button id="btnAddSped">+Speed</button>
+			<button id="btnSubSped">-Speed</button>
+		</div>
+		<script>
+			// Thanks neouser99 from StackOverflow!
+			function holdit(btn, action, start, speedup) {
+				var t;
+
+				var repeat = function () {
+					action();
+					t = setTimeout(repeat, start);
+					start = start / speedup;
+				}
+
+				btn.onmousedown = btn.ontouchstart = function() {
+					repeat();
+				}
+
+				btn.onmouseup = btn.ontouchend = btn.onmouseout = function () {
+					clearTimeout(t);
+				}
+				
+				btn.oncontextmenu = function() {return false;};
+			};
+		</script>
 		<script>
 			// This code is dual-licensed under the Unlicense or the MIT license.
+
+			var $ = document.getElementById.bind(document);
 
 			var canv = document.getElementsByTagName("canvas")[0];
 			var ctx = canv.getContext('2d');
@@ -27,6 +78,19 @@
 			var dots = 50;
 			var distance = 6;
 			var speed = 0.00005;
+
+			function addDist() {distance += 0.01;}
+			function subDist() {distance -= 0.01;}
+			function addSped() {speed *= 1 / 0.9;}
+			function subSped() {speed *= 0.9;}
+
+			holdit($("btnAddDots"), function() {dots++;}, 50, 1);
+			holdit($("btnSubDots"), function() {dots--;}, 50, 1);
+			holdit($("btnAddDist"), addDist, 10, 1);
+			holdit($("btnSubDist"), subDist, 10, 1);
+			holdit($("btnAddSped"), addSped, 50, 1);
+			holdit($("btnSubSped"), subSped, 50, 1);
+
 			document.onkeydown = function(e) {
 				console.log(e.key);
 				if(e.key == "=")
@@ -34,16 +98,20 @@
 				else if(e.key == "-")
 					dots--;
 				else if(e.key == "ArrowLeft")
-					distance -= 0.01;
+					addDist();
 				else if(e.key == "ArrowRight")
-					distance += 0.01;
+					subDist();
 				else if(e.key == "ArrowUp")
-					speed *= 1 / 0.9;
+					addSped();
 				else if(e.key == "ArrowDown")
-					speed *= 0.9;
+					subSped();
 			}
 			
 			requestAnimationFrame(animfunc = function() {
+				
+				$("valDots").innerText = dots;
+				$("valDist").innerText = distance;
+				$("valSped").innerText = speed;
 				
 				ctx.fillStyle = "#000";
 				ctx.fillRect(0, 0, canv.scrollWidth, canv.scrollHeight);
